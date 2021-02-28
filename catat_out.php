@@ -1,13 +1,12 @@
 <?php
 session_start();
 
-if($_SESSION['password']=='')
-{
+if ($_SESSION['password'] == '') {
     header("location: login.php");
 }
 include 'config/koneksi.php';
 
- ?>
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -138,11 +137,11 @@ include 'config/koneksi.php';
           <ul class="navbar-nav ml-auto">
 
             <?php
-          $pass = $_SESSION['password'];
-          $sss = mysqli_query($conn, "select * from admin where password = '$pass'");
-          $rrr = mysqli_fetch_array($sss);
-          if($sss){
-             ?>
+$pass = $_SESSION['password'];
+$sss = mysqli_query($conn, "select * from admin where password = '$pass'");
+$rrr = mysqli_fetch_array($sss);
+if ($sss) {
+    ?>
 
             <div class="topbar-divider d-none d-sm-block"></div>
 
@@ -175,7 +174,7 @@ include 'config/koneksi.php';
             </li>
             <?php
 }
-             ?>
+?>
 
           </ul>
         </nav>
@@ -222,71 +221,57 @@ include 'config/koneksi.php';
               </form>
               <?php
 
+if (isset($_POST['kirim'])) {
+    $nama = htmlspecialchars($_POST['nama']);
+    $jumlah = htmlspecialchars($_POST['jumlah']);
+    $date = htmlspecialchars($_POST['date']);
 
+    $Jumlah_kas = mysqli_query($conn, "select sum(jumlah) as kas from kas");
+    $total = mysqli_fetch_array($Jumlah_kas);
+    $total_kas = ($total['kas']);
 
-                if(isset($_POST['kirim'])){
-               $nama = htmlspecialchars($_POST['nama']);
-               $jumlah = htmlspecialchars($_POST['jumlah']);
-               $date = htmlspecialchars($_POST['date']);
+    $Jumlah_out = mysqli_query($conn, "select sum(jumlah) as keluar from keluar");
+    $total_out = mysqli_fetch_array($Jumlah_out);
+    $total_keluar = ($total_out['keluar']);
 
+    $chekout = $total_keluar + $jumlah;
 
+    if ($total_kas < $total_keluar or $total_kas < $jumlah or $total_kas < $chekout) {
 
+        echo "<div class='col-md-10 col-sm-12 col-xs-12 ml-5'>";
+        echo "<div class='alert alert-warning mt-4 ml-5' role='alert'>";
+        echo "<p><center>Maaf Tidak Bisa</center></p>";
+        echo "</div>";
+        echo "</div>";
 
-                 $Jumlah_kas=mysqli_query($conn, "select sum(jumlah) as kas from kas");
-                 $total=mysqli_fetch_array($Jumlah_kas);
-                 $total_kas = ($total['kas']);
+    } else {
 
-
-                   $Jumlah_out=mysqli_query($conn, "select sum(jumlah) as keluar from keluar");
-                   $total_out=mysqli_fetch_array($Jumlah_out);
-                   $total_keluar = ($total_out['keluar']);
-
-                   $chekout = $total_keluar + $jumlah;
-
-
-
-                  if($total_kas < $total_keluar or $total_kas < $jumlah or $total_kas < $chekout){
-
-
-
-
-                    echo "<div class='col-md-10 col-sm-12 col-xs-12 ml-5'>";
-                    echo "<div class='alert alert-warning mt-4 ml-5' role='alert'>";
-                    echo "<p><center>Maaf Tidak Bisa</center></p>";
-                    echo   "</div>";
-                    echo "</div>";
-
-
-                  }else{
-
-               $insert = mysqli_query($conn, "INSERT INTO keluar VALUES (
+        $insert = mysqli_query($conn, "INSERT INTO keluar VALUES (
                 NULL,
                 '$nama',
                 '$jumlah',
                 '$date'
                   )");
 
-               if($insert){
-                 echo "<div class='col-md-10 col-sm-12 col-xs-12'>";
-                 echo "<div class='alert alert-primary mt-4 ml-5' role='alert'>";
-                 echo "<p><center>Data Sudah Masuk</center></p>";
-                 echo   "</div>";
-                 echo "</div>";
-               }else{
-                 echo "<div class='col-md-10 col-sm-12 col-xs-12'>";
-                 echo "<div class='alert alert-danger mt-4 ml-5' role='alert'>";
-                 echo "<p><center>Data Gagal Masuk</center></p>";
-                 echo   "</div>";
-                 echo "</div>";
+        if ($insert) {
+            echo "<div class='col-md-10 col-sm-12 col-xs-12'>";
+            echo "<div class='alert alert-primary mt-4 ml-5' role='alert'>";
+            echo "<p><center>Data Sudah Masuk</center></p>";
+            echo "</div>";
+            echo "</div>";
+        } else {
+            echo "<div class='col-md-10 col-sm-12 col-xs-12'>";
+            echo "<div class='alert alert-danger mt-4 ml-5' role='alert'>";
+            echo "<p><center>Data Gagal Masuk</center></p>";
+            echo "</div>";
+            echo "</div>";
 
-               }
+        }
 
+    }
+}
 
-            }
-                }
-
-
-              ?>
+?>
 
 
 </div>
